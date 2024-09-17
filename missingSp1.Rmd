@@ -559,7 +559,7 @@ comp_figBF <- rbind(comp_figBF, c(BF1_pnpmle$Nhat, BF1_pnpmle$CI))
 comp_figBF <- rbind(comp_figBF, c(BF1_unpmle$Nhat, BF1_unpmle$CI))
 comp_figBF <- rbind(comp_figBF, unlist(summary(fitcoefBF2)[4, c(2, 5, 9)]))
 names(comp_figBF) <- c("Mean", "Lower", "Upper")
-comp_figBF$Methods <- c("ChaoLee1992","ChaoBunge", "jackknife", "chao1984", "pcg","pnmle","unmle", "Bayes")
+comp_figBF$Methods <- c("ChaoLee1992","ChaoBunge", "jackknife", "chao1984", "pcg","pnpmle","unpmle", "Bayes")
 
 comp_figBF_c <- data.frame(mean = NULL, lower= NULL, upper=NULL)
 comp_figBF_c <- rbind(comp_figBF_c, c(BF1_ace2$Nhat[1], BF1_ace2$CI[1,]))
@@ -571,7 +571,7 @@ comp_figBF_c <- rbind(comp_figBF_c, c(BF1_pnpmle2$Nhat, BF1_pnpmle2$CI))
 comp_figBF_c <- rbind(comp_figBF_c, c(BF1_unpmle2$Nhat, BF1_unpmle2$CI))
 comp_figBF_c <- rbind(comp_figBF_c, unlist(summary(fitcoefBF_C)[4, c(2, 5, 9)]))
 names(comp_figBF_c) <- c("Mean", "Lower", "Upper")
-comp_figBF_c$Methods <- c("ChaoLee1992","ChaoBunge", "jackknife", "chao1984", "pcg","pnmle","unmle", "Bayes")
+comp_figBF_c$Methods <- c("ChaoLee1992","ChaoBunge", "jackknife", "chao1984", "pcg","pnpmle","unpmle", "Bayes")
 
 comp_figBF2 <- data.frame(mean = NULL, lower= NULL, upper=NULL)
 comp_figBF2 <- rbind(comp_figBF2, c(BF2_ace$Nhat[1], BF2_ace$CI[1,]))
@@ -584,7 +584,7 @@ comp_figBF2 <- rbind(comp_figBF2, c(BF2_unpmle$Nhat, BF2_unpmle$CI))
 comp_figBF2 <- rbind(comp_figBF2, unlist(summary(fitcoefBF)[4, c(2, 5, 9)]))
 
 names(comp_figBF2) <- c("Mean", "Lower", "Upper")
-comp_figBF2$Methods <- c("ChaoLee1992","ChaoBunge", "jackknife", "chao1984", "pcg","pnmle","unmle","Bayes")
+comp_figBF2$Methods <- c("ChaoLee1992","ChaoBunge", "jackknife", "chao1984", "pcg","pnpmle","unpmle","Bayes")
 
 comp_figSK <- data.frame(mean = NULL, lower= NULL, upper=NULL)
 comp_figSK <- rbind(comp_figSK, c(SK_ace$Nhat[1], SK_ace$CI[1,]))
@@ -597,7 +597,7 @@ comp_figSK <- rbind(comp_figSK, c(SK_unpmle$Nhat, SK_unpmle$CI))
 comp_figSK <- rbind(comp_figSK, unlist(summary(fitcoefSK)[4, c(2, 5, 9)]))
 
 names(comp_figSK) <- c("Mean", "Lower", "Upper")
-comp_figSK$Methods <- c("ChaoLee1992","ChaoBunge", "jackknife", "chao1984", "pcg","pnmle","unmle","Bayes")
+comp_figSK$Methods <- c("ChaoLee1992","ChaoBunge", "jackknife", "chao1984", "pcg","pnpmle","unpmle","Bayes")
 
 comp_figSK2 <- data.frame(mean = NULL, lower= NULL, upper=NULL)
 comp_figSK2 <- rbind(comp_figSK2, c(SK_ace2$Nhat[1], SK_ace2$CI[1,]))
@@ -610,10 +610,10 @@ comp_figSK2 <- rbind(comp_figSK2, c(SK_unpmle2$Nhat, SK_unpmle2$CI))
 comp_figSK2 <- rbind(comp_figSK2, unlist(summary(fitcoefSK2)[4, c(2, 5, 9)]))
 
 names(comp_figSK2) <- c("Mean", "Lower", "Upper")
-comp_figSK2$Methods <- c("ChaoLee1992","ChaoBunge", "jackknife", "chao1984", "pcg","pnmle","unmle","Bayes")
+comp_figSK2$Methods <- c("ChaoLee1992","ChaoBunge", "jackknife", "chao1984", "pcg","pnpmle","unpmle","Bayes")
 
 
-##tikz(file=paste(workDir, "Figs","Comp_fig0.tex", sep="/"), height=3, width=6.5, standAlone=F)
+tikz(file=paste(workDir, "Figs","Comp_fig0.tex", sep="/"), height=3, width=6.5, standAlone=F)
 par(mfrow=c(1,3),oma=c(4, 6, 3, 1), mar=c(0,0.5,0.1,0.5), mgp=c(1.5,0.25,0),las=1, tck=-0.01)
 plot(c(1,10), c(1,10), xlim=range(comp_figSK[,c(2,3)]), log="x", 
      ylim=c(1,8), axes=F, xlab="Estimates", ylab="")
@@ -650,10 +650,10 @@ box()
 axis(1, outer = T)
 mtext("Butterfly R", cex=0.75)
 mtext("Estimates", side=1, outer=T, line=2)
-##dev.off()
+dev.off()
 
-##tikz(file=paste(workDir, "Figs","Comp_fig1.tex", sep="/"), height=3, 
-##     width=6.5, standAlone=F)
+tikz(file=paste(workDir, "Figs","Comp_fig1.tex", sep="/"), height=3, 
+     width=6.5, standAlone=F)
 par(mfrow=c(1,3),oma=c(4, 6, 3, 1), mar=c(0,0.5,0.1,0.5), mgp=c(1.5,0.25,0),las=1, tck=-0.01)
 plot(c(1,10), c(1,10), xlim=range(comp_figSK[,c(2,3)]), log="x", 
      ylim=c(1,8), axes=F, xlab="Estimates", ylab="")
@@ -690,12 +690,12 @@ box()
 axis(1, outer = T)
 mtext("Butterfly R", cex=0.75)
 mtext("Estimates", side=1, outer=T, line=2)
-##dev.off()
+dev.off()
 
 ```
 ```{R, device=tikz, fig.width=5, fig.height=5}
 ## SK 2 and BF_C
-##tikz(file=paste(workDir, "Figs","Comp_fig2.tex", sep="/"), height=3, ##width=5, standAlone=F)
+tikz(file=paste(workDir, "Figs","Comp_fig2.tex", sep="/"), height=3, width=5, standAlone=F)
 par(mfrow=c(1,2),oma=c(4, 6, 3, 1), mar=c(0,0.5,0.1,0.5), mgp=c(1.5,0.125,0), las=1, tck=-0.01)
 plot(c(1,10), c(1,10), xlim=range(comp_figSK[,c(2,3)]), log="x", 
      ylim=c(1,8), axes=F, xlab="Estimates", ylab="")
@@ -719,7 +719,7 @@ box()
 mtext("Butterfly M", cex=0.75)
 
 mtext("Estimates", side=1, outer=T, line=2)
-##dev.off()
+dev.off()
 ```
 ## Model Evaluation 
 Using posterior simulation: model predicted number of species with 1, 2, 3, ..., n specimens 
