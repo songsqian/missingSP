@@ -1,1 +1,1 @@
-This repository includes an R Markdown file (the main computation) and a Q Markdown file (model evaluation using simulation) of the missing species paper published in *Ecological Informatics* (to appear 2026).
+This repository includes an R Markdown file (the main computation) and a Q Markdown file (model evaluation using simulation) of the missing species paper published in (*Ecological Informatics*)[https://doi.org/10.1016/j.ecoinf.2026.103773].
