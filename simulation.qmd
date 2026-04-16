@@ -1,0 +1,382 @@
+---
+title: "Respond to Reviewers"
+format: html
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+### Simulation with known abundance
+
+The reviewer's code simulated for a true richness of 600, not 60 as stated.
+
+```{r}
+#| label: sim
+
+## simulating data
+require(tidyverse)
+ytrue <- rnbinom(n = 60, size = 10, prob = 0.85)  
+mean(ytrue == 0)  
+y <- ytrue[ytrue>0]  
+n <- length(y)  
+table(ytrue) %>% plot
+```
+
+### `stan` model:
+
+```{r}
+#| label: stan_model
+
+mod <- "  
+data {  
+int<lower = 1> n; // total number of species  
+array[n] int<lower = 0> y; // catch per species  
+}
+
+parameters {  
+real log_mu;  
+real<lower = 0> r;  
+}
+
+transformed parameters {  
+real<lower=0,upper=1> p0;  
+real<lower=0> mu;  
+mu = exp(log_mu);  
+p0 = (r/(mu+r))^r;  
+}
+
+model {  
+log_mu ~ normal(0,5);  
+r ~ cauchy(0,2);
+
+target += neg_binomial_2_log_lpmf(y | log_mu, r) - log1m(p0);  
+}
+
+generated quantities {  
+real N; // estimated total number of species  
+N = n/(1-p0);  
+}  
+"
+  
+fit_mod <- stan_model(model_code = mod)  
+
+fit <- sampling(fit_mod, data=list(n=n, y=y), chains=8)
+print(fit)
+
+```
+
+### Sampling distribution
+
+Simulation to estimate the sampling distribution of N
+
+```{r}
+#| label: sampling_distribution
+ 
+nsim <- 100
+fitN <- rv()
+fit_pnpmle <- fit_jkknf <- fit_ace <- fit_lowerbound <- 
+  fit_covdur <- fit_unpmle <- fit_pcg <- list()
+for (i in 1:nsim){
+  ytrue <- rnbinom(n = 60, size = 10, prob = 0.85)  
+  mean(ytrue == 0)  
+  y <- ytrue[ytrue>0]  
+  n <- length(y)
+  n_j <- table(y)
+  y.frame <- matrix(c(1:length(n_j), n_j), ncol=2, byrow=F)
+  fit <- sampling(fit_mod, data=list(n=n, y=y), 
+                  iter=niters, thin=nthin, chains=nchains)
+  fitN[i] <- rvsims(as.matrix(as.data.frame(rstan::extract(fit, permute=T))))[5]
+  fit_pnpmle[[i]] <- pnpmle(y.frame, t=15, C=1, b=200)
+  fit_jkknf[[i]] <- jackknife(y.frame, k=5)
+  fit_ace[[i]] <- ChaoLee1992(y.frame, t=5)
+  fit_lowerbound[[i]] <- chao1984(y.frame)
+  fit_covdur[[i]] <- ChaoBunge(y.frame, t=5)
+  fit_unpmle[[i]] <- unpmle(y.frame, t=5, C=1, b=200)
+  ##fit_pcg[[i]] <- pcg(y.frame, t=10, C=1, b=200)
+  print(i)
+}
+
+for (i in (nsim+1):(2*nsim)){
+  ytrue <- rnbinom(n = 60, size = 10, prob = 0.85)  
+  mean(ytrue == 0)  
+  y <- ytrue[ytrue>0]  
+  n <- length(y)
+  n_j <- table(y)
+  y.frame <- matrix(c(1:length(n_j), n_j), ncol=2, byrow=F)
+  fit <- sampling(fit_mod, data=list(n=n, y=y), 
+                  iter=niters, thin=nthin, chains=nchains)
+  fitN[i] <- rvsims(as.matrix(as.data.frame(rstan::extract(fit, permute=T))))[5]
+  fit_pnpmle[[i]] <- pnpmle(y.frame, t=15, C=1, b=200)
+  fit_jkknf[[i]] <- jackknife(y.frame, k=5)
+  fit_ace[[i]] <- ChaoLee1992(y.frame, t=5)
+  fit_lowerbound[[i]] <- chao1984(y.frame)
+  fit_covdur[[i]] <- ChaoBunge(y.frame, t=5)
+  fit_unpmle[[i]] <- unpmle(y.frame, t=5, C=1, b=200)
+  ##fit_pcg[[i]] <- pcg(y.frame, t=10, C=1, b=200)
+  print(i)
+}
+
+for (i in (2*nsim+1):(3*nsim)){
+  ytrue <- rnbinom(n = 60, size = 10, prob = 0.85)  
+  mean(ytrue == 0)  
+  y <- ytrue[ytrue>0]  
+  n <- length(y)
+  n_j <- table(y)
+  y.frame <- matrix(c(1:length(n_j), n_j), ncol=2, byrow=F)
+  fit <- sampling(fit_mod, data=list(n=n, y=y), 
+                  iter=niters, thin=nthin, chains=nchains)
+  fitN[i] <- rvsims(as.matrix(as.data.frame(rstan::extract(fit, permute=T))))[5]
+  fit_pnpmle[[i]] <- pnpmle(y.frame, t=15, C=1, b=200)
+  fit_jkknf[[i]] <- jackknife(y.frame, k=5)
+  fit_ace[[i]] <- ChaoLee1992(y.frame, t=5)
+  fit_lowerbound[[i]] <- chao1984(y.frame)
+  fit_covdur[[i]] <- ChaoBunge(y.frame, t=5)
+  fit_unpmle[[i]] <- unpmle(y.frame, t=5, C=1, b=200)
+  ##fit_pcg[[i]] <- pcg(y.frame, t=10, C=1, b=200)
+  print(i)
+}
+
+for (i in (3*nsim+1):(4*nsim)){
+  ytrue <- rnbinom(n = 60, size = 10, prob = 0.85)  
+  mean(ytrue == 0)  
+  y <- ytrue[ytrue>0]  
+  n <- length(y)
+  n_j <- table(y)
+  y.frame <- matrix(c(1:length(n_j), n_j), ncol=2, byrow=F)
+  fit <- sampling(fit_mod, data=list(n=n, y=y), 
+                  iter=niters, thin=nthin, chains=nchains)
+  fitN[i] <- rvsims(as.matrix(as.data.frame(rstan::extract(fit, permute=T))))[5]
+  fit_pnpmle[[i]] <- pnpmle(y.frame, t=15, C=1, b=200)
+  fit_jkknf[[i]] <- jackknife(y.frame, k=5)
+  fit_ace[[i]] <- ChaoLee1992(y.frame, t=5)
+  fit_lowerbound[[i]] <- chao1984(y.frame)
+  fit_covdur[[i]] <- ChaoBunge(y.frame, t=5)
+  fit_unpmle[[i]] <- unpmle(y.frame, t=5, C=1, b=200)
+  ##fit_pcg[[i]] <- pcg(y.frame, t=10, C=1, b=200)
+  print(i)
+}
+
+for (i in (4*nsim+1):(5*nsim)){
+  ytrue <- rnbinom(n = 60, size = 10, prob = 0.85)  
+  mean(ytrue == 0)  
+  y <- ytrue[ytrue>0]  
+  n <- length(y)
+  n_j <- table(y)
+  y.frame <- matrix(c(1:length(n_j), n_j), ncol=2, byrow=F)
+  fit <- sampling(fit_mod, data=list(n=n, y=y), 
+                  iter=niters, thin=nthin, chains=nchains)
+  fitN[i] <- rvsims(as.matrix(as.data.frame(rstan::extract(fit, permute=T))))[5]
+  fit_pnpmle[[i]] <- pnpmle(y.frame, t=15, C=1, b=200)
+  fit_jkknf[[i]] <- jackknife(y.frame, k=5)
+  fit_ace[[i]] <- ChaoLee1992(y.frame, t=5)
+  fit_lowerbound[[i]] <- chao1984(y.frame)
+  fit_covdur[[i]] <- ChaoBunge(y.frame, t=5)
+  fit_unpmle[[i]] <- unpmle(y.frame, t=5, C=1, b=200)
+  ##fit_pcg[[i]] <- pcg(y.frame, t=10, C=1, b=200)
+  print(i)
+}
+
+for (i in (5*nsim+1):(6*nsim)){
+  ytrue <- rnbinom(n = 60, size = 10, prob = 0.85)  
+  mean(ytrue == 0)  
+  y <- ytrue[ytrue>0]  
+  n <- length(y)
+  n_j <- table(y)
+  y.frame <- matrix(c(1:length(n_j), n_j), ncol=2, byrow=F)
+  fit <- sampling(fit_mod, data=list(n=n, y=y), 
+                  iter=niters, thin=nthin, chains=nchains)
+  fitN[i] <- rvsims(as.matrix(as.data.frame(rstan::extract(fit, permute=T))))[5]
+  fit_pnpmle[[i]] <- pnpmle(y.frame, t=15, C=1, b=200)
+  fit_jkknf[[i]] <- jackknife(y.frame, k=5)
+  fit_ace[[i]] <- ChaoLee1992(y.frame, t=5)
+  fit_lowerbound[[i]] <- chao1984(y.frame)
+  fit_covdur[[i]] <- ChaoBunge(y.frame, t=5)
+  fit_unpmle[[i]] <- unpmle(y.frame, t=5, C=1, b=200)
+  ##fit_pcg[[i]] <- pcg(y.frame, t=10, C=1, b=200)
+  print(i)
+}
+
+for (i in (6*nsim+1):(7*nsim)){
+  ytrue <- rnbinom(n = 60, size = 10, prob = 0.85)  
+  mean(ytrue == 0)  
+  y <- ytrue[ytrue>0]  
+  n <- length(y)
+  n_j <- table(y)
+  y.frame <- matrix(c(1:length(n_j), n_j), ncol=2, byrow=F)
+  fit <- sampling(fit_mod, data=list(n=n, y=y), 
+                  iter=niters, thin=nthin, chains=nchains)
+  fitN[i] <- rvsims(as.matrix(as.data.frame(rstan::extract(fit, permute=T))))[5]
+  fit_pnpmle[[i]] <- pnpmle(y.frame, t=15, C=1, b=200)
+  fit_jkknf[[i]] <- jackknife(y.frame, k=5)
+  fit_ace[[i]] <- ChaoLee1992(y.frame, t=5)
+  fit_lowerbound[[i]] <- chao1984(y.frame)
+  fit_covdur[[i]] <- ChaoBunge(y.frame, t=5)
+  fit_unpmle[[i]] <- unpmle(y.frame, t=5, C=1, b=200)
+  ##fit_pcg[[i]] <- pcg(y.frame, t=10, C=1, b=200)
+  print(i)
+}
+
+for (i in (7*nsim+1):(8*nsim)){
+  ytrue <- rnbinom(n = 60, size = 10, prob = 0.85)  
+  mean(ytrue == 0)  
+  y <- ytrue[ytrue>0]  
+  n <- length(y)
+  n_j <- table(y)
+  y.frame <- matrix(c(1:length(n_j), n_j), ncol=2, byrow=F)
+  fit <- sampling(fit_mod, data=list(n=n, y=y), 
+                  iter=niters, thin=nthin, chains=nchains)
+  fitN[i] <- rvsims(as.matrix(as.data.frame(rstan::extract(fit, permute=T))))[5]
+  fit_pnpmle[[i]] <- pnpmle(y.frame, t=15, C=1, b=200)
+  fit_jkknf[[i]] <- jackknife(y.frame, k=5)
+  fit_ace[[i]] <- ChaoLee1992(y.frame, t=5)
+  fit_lowerbound[[i]] <- chao1984(y.frame)
+  fit_covdur[[i]] <- ChaoBunge(y.frame, t=5)
+  fit_unpmle[[i]] <- unpmle(y.frame, t=5, C=1, b=200)
+  ##fit_pcg[[i]] <- pcg(y.frame, t=10, C=1, b=200)
+  print(i)
+}
+
+for (i in (8*nsim+1):(9*nsim)){
+  ytrue <- rnbinom(n = 60, size = 10, prob = 0.85)  
+  mean(ytrue == 0)  
+  y <- ytrue[ytrue>0]  
+  n <- length(y)
+  n_j <- table(y)
+  y.frame <- matrix(c(1:length(n_j), n_j), ncol=2, byrow=F)
+  fit <- sampling(fit_mod, data=list(n=n, y=y), 
+                  iter=niters, thin=nthin, chains=nchains)
+  fitN[i] <- rvsims(as.matrix(as.data.frame(rstan::extract(fit, permute=T))))[5]
+  fit_pnpmle[[i]] <- pnpmle(y.frame, t=15, C=1, b=200)
+  fit_jkknf[[i]] <- jackknife(y.frame, k=5)
+  fit_ace[[i]] <- ChaoLee1992(y.frame, t=5)
+  fit_lowerbound[[i]] <- chao1984(y.frame)
+  fit_covdur[[i]] <- ChaoBunge(y.frame, t=5)
+  fit_unpmle[[i]] <- unpmle(y.frame, t=5, C=1, b=200)
+  ##fit_pcg[[i]] <- pcg(y.frame, t=10, C=1, b=200)
+  print(i)
+}
+
+for (i in (9*nsim+1):(10*nsim)){
+  ytrue <- rnbinom(n = 60, size = 10, prob = 0.85)  
+  mean(ytrue == 0)  
+  y <- ytrue[ytrue>0]  
+  n <- length(y)
+  n_j <- table(y)
+  y.frame <- matrix(c(1:length(n_j), n_j), ncol=2, byrow=F)
+  fit <- sampling(fit_mod, data=list(n=n, y=y), 
+                  iter=niters, thin=nthin, chains=nchains)
+  fitN[i] <- rvsims(as.matrix(as.data.frame(rstan::extract(fit, permute=T))))[5]
+  fit_pnpmle[[i]] <- pnpmle(y.frame, t=15, C=1, b=200)
+  fit_jkknf[[i]] <- jackknife(y.frame, k=5)
+  fit_ace[[i]] <- ChaoLee1992(y.frame, t=5)
+  fit_lowerbound[[i]] <- chao1984(y.frame)
+  fit_covdur[[i]] <- ChaoBunge(y.frame, t=5)
+  fit_unpmle[[i]] <- unpmle(y.frame, t=5, C=1, b=200)
+  ##fit_pcg[[i]] <- pcg(y.frame, t=10, C=1, b=200)
+  print(i)
+}
+```
+
+### Summarizing simulation results
+
+Summarizing simulation results 1. Graphical comparison of the estimated CIs (95% credible intervals or confidence intervals) 2. Summary statistics of the estimation errors (estimated - true): - absolute deviance (accuracy) - mean residuals (bias) - mean squared errors (square differences)
+
+```{r}
+#| label: summarizing
+
+oo <- sample(1000, 100, F)
+tikz(file="div_sims.tex", height=6, width=6.25, standAlone = F)
+par(mfrow=c(1,2), mar=c(4, 1, 2, 1), mgp=c(1.5,0.25,0), tck=-0.01)
+mlplot(fitN[oo], xlim=c(40, 150), cex=0.5, axes=F, 
+       xlab="Estimated Richness", ylab="simulations",
+       sub="Wang and Lindsay (2008)")
+abline(v=60, col="red")
+axis(1, at=seq(30, 160, 20))
+axis(3, at=c(60), tck=0.02, col="red")
+axis(3, at=c(35,250), tck=0.02)
+text(x=60, y=-6.5, "True richness")
+for (i in 1:100){
+  temp <- fit_pnpmle[[oo[i]]]
+  points(x=temp$Nhat, y=i+0.5, col=rgb(0.5,0.5,0.5,0.5), pch=16, cex=0.5)
+  segments(x0=temp$CI[1], x1=temp$CI[2], y0=i+0.5, y1=i+0.5, col=rgb(0.5,0.5,0.5,0.5))
+}
+
+mlplot(fitN[oo], xlim=c(40, 150), cex=0.5, axes=F, 
+       xlab="Estimated Richness", ylab="simulations", 
+       sub="Chao and Lee (1992)")
+abline(v=60, col="red")
+axis(1, at=seq(30, 160, 20))
+axis(3, at=c(60), tck=0.02, col="red")
+axis(3, at=c(35,250), tck=0.02)
+text(x=60, y=-6.5, "True richness")
+for (i in 1:100){
+  temp <- fit_ace[[oo[i]]]
+  points(x=temp$Nhat[2], y=i+0.5, col=rgb(0.5,0.5,0.5,0.5), pch=16, cex=0.5)
+  segments(x0=temp$CI[2,1], x1=temp$CI[2,2], y0=i+0.5, y1=i+0.5, col=rgb(0.5,0.5,0.5,0.5))
+}
+
+dev.off()
+
+save(fitN, fit_pnpmle, fit_jkknf, fit_ace, fit_lowerbound,
+     fit_covdur, fit_unpmle, file="sim_raw.RData")
+
+## calculating mead differences
+N_pnpmle <- N_jkknf <- N_ace <- N_lowerbound <- N_unpmle <- N_covdur <- CIw_pnpmle <- CIw_jkknf <- CIw_ace <- CIw_lowerbound <- CIw_unpmle <- CIw_covdur <-numeric() 
+
+for (i in 1:(nsim*10)){
+  N_pnpmle[i] <- fit_pnpmle[[i]]$Nhat
+  N_jkknf[i] <- fit_jkknf[[i]]$Nhat
+  N_ace[i] <- fit_ace[[i]]$Nhat[1]
+  N_lowerbound[i] <- fit_lowerbound[[i]]$Nhat
+  N_unpmle[i] <- fit_unpmle[[i]]$Nhat
+  N_covdur[i] <- fit_covdur[[i]]$Nhat
+  CIw_pnpmle[i] <- diff(fit_pnpmle[[i]]$CI[1,])
+  CIw_jkknf[i] <- diff(fit_jkknf[[i]]$CI[1,])
+  CIw_ace[i] <- diff(fit_ace[[i]]$CI[2,])
+  CIw_lowerbound[i] <- diff(fit_lowerbound[[i]]$CI[1,])
+  CIw_unpmle[i] <- diff(fit_unpmle[[i]]$CI[1,])
+  CIw_covdur[i] <- diff(fit_covdur[[i]]$CI[1,])
+}
+
+CIw_Bayes <- apply(summary(fitN)[, c(4,8)], 1, diff)
+
+CIw_all <- c(rvsims(CIw_Bayes),  rvsims(CIw_pnpmle), rvsims(CIw_jkknf), rvsims(CIw_ace), rvsims(CIw_lowerbound), rvsims(CIw_unpmle), rvsims(CIw_covdur))
+
+names(CIw_all) <- c("Bayes", "pnpmle", "jackknife", "ChaoLee1992","chao1984", "ChaoBungle", "unpmle")
+
+tikz(file="CIws.tex", width=4, height=3., standAlone = F)
+par(mar=c(3, 3, 1, 1), mgp=c(1.25, 0.125, 0), tck=0.01)
+mlplot(CIw_all, xlim=c(4, 100), xlab="Confidence/credible Interval Widths")
+dev.off()
+
+rev_table <- cbind(c(mean(abs(summary(fitN)$mean - 60)),
+mean(abs(N_pnpmle-60)),
+mean(abs(N_jkknf-60)),
+mean(abs(N_ace-60)),
+mean(abs(N_lowerbound-60)),
+mean(abs(N_unpmle-60)),
+mean(abs(N_covdur-60))), 
+
+c(mean(summary(fitN)$mean - 60),
+mean(N_pnpmle-60),
+mean(N_jkknf-60),
+mean(N_ace-60),
+mean(N_lowerbound-60),
+mean(N_unpmle-60),
+mean(N_covdur-60)),
+
+sqrt(c(mean((summary(fitN)$mean - 60)^2),
+mean((N_pnpmle-60)^2),
+mean((N_jkknf-60)^2),
+mean((N_ace-60)^2),
+mean((N_lowerbound-60)^2),
+mean((N_unpmle-60)^2),
+mean((N_covdur-60)^2))))
+
+colnames(rev_table) <- c("Accuracy", "Bias", "RMSE")
+
+rownames(rev_table) <- c("Bayes", "pnpmle", "jackknife", "ChaoLee1992","chao1984", "ChaoBungle", "unpmle")
+save(N_pnpmle, N_jkknf, N_ace, N_lowerbound, N_unpmle, N_covdur,
+     file = "sim_results.RData")
+write.table(round(rev_table, 3), file="rev_table.tex", sep="&")
+```
