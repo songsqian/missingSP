@@ -1,5 +1,5 @@
 ---
-title: "Respond to Reviewers"
+title: "Monte Carlo Simulation for Model Evaluation"
 format: html
 editor: visual
 editor_options: 
@@ -7,8 +7,6 @@ editor_options:
 ---
 
 ### Simulation with known abundance
-
-The reviewer's code simulated for a true richness of 600, not 60 as stated.
 
 ```{r}
 #| label: sim
